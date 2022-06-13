@@ -9,12 +9,43 @@ class Node:
         self.verges = verges
 
     def get_connected_nodes(self):
+        verges = []
         for verge in self.verges:
-            yield verge.node2 if verge.node2 is not self else verge.node1
+            verges.append(verge.node1 if verge.node1 is not self else verge.node2)
+        return verges
+
+    def get_every_connected_node(self, nodes: list = None):
+        found_nodes = nodes or []
+        for node in self.get_connected_nodes():
+            if node in found_nodes:
+                continue
+
+            found_nodes.append(node)
+            node.get_every_connected_node(nodes=found_nodes)
+
+        return found_nodes
+
+    def search_in_nodes_tree(self, **filters):
+        filtered_nodes = []
+        for node in self.get_every_connected_node():
+            for filter_ in filters:
+                if filter_ not in node.node_data:
+                    continue
+                if node.node_data[filter_] != filters[filter_]:
+                    continue
+
+                filtered_nodes.append(node)
+        return filtered_nodes
 
     def get_verges(self):
         return self.verges
 
+    @property
+    def node_data(self):
+        return self._node_data
+
+    def __str__(self):
+        return f'{self.node_data}'
 
 class Verge:
     def __init__(self, node1: Node, node2: Node, **verge_data):
